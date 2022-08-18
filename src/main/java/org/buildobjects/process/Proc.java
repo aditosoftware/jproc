@@ -5,6 +5,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,7 @@ class Proc implements EventSink {
                 boolean clearEnvironment,
                 InputStream stdin,
                 Object stdout,
+                Consumer<Process> onCreationHandler,
                 File directory,
                 Long timeout,
                 Object stderr)
@@ -61,6 +63,8 @@ class Proc implements EventSink {
 
             builder.environment().putAll(env);
             process = builder.start();
+            if (onCreationHandler != null)
+                onCreationHandler.accept(process);
 
             stdoutConsumer = createStreamConsumer(stdout);
 

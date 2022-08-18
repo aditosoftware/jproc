@@ -2,6 +2,7 @@ package org.buildobjects.process;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
 import static org.buildobjects.process.Helper.asSet;
@@ -29,6 +30,7 @@ public class ProcBuilder {
 
     private StreamConsumer outputConsumer;
     private StreamConsumer errorConsumer;
+    private Consumer<Process> onCreationHandler;
     private boolean clearEnvironment;
 
 
@@ -220,7 +222,7 @@ public class ProcBuilder {
         }
 
         try {
-            Proc proc = new Proc(command, args, env, clearEnvironment, stdin, outputConsumer != null ? outputConsumer : stdout , directory, timoutMillis, errorConsumer != null ? errorConsumer : stderr);
+            Proc proc = new Proc(command, args, env, clearEnvironment, stdin, outputConsumer != null ? outputConsumer : stdout, onCreationHandler, directory, timoutMillis, errorConsumer != null ? errorConsumer : stderr);
 
             final ByteArrayOutputStream output = defaultStdout == stdout && outputConsumer == null ? defaultStdout : null;
 
@@ -325,6 +327,16 @@ public class ProcBuilder {
                 "are mutually exclusive.");
         }
         this.errorConsumer = errorConsumer;
+        return this;
+    }
+
+    /**
+     * Handler that gets called when the process is created
+     *
+     * @param handler Consumer that takes the created process as argument
+     */
+    public ProcBuilder withOnCreationHandler(Consumer<Process> handler) {
+        onCreationHandler = handler;
         return this;
     }
 
